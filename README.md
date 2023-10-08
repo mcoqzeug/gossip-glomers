@@ -1,6 +1,7 @@
 
-[repo](https://github.com/jepsen-io/maelstrom)
-[website](https://fly.io/dist-sys)
+[maelstrom](https://github.com/jepsen-io/maelstrom)
+
+[challenge](https://fly.io/dist-sys)
 
 To build:
 

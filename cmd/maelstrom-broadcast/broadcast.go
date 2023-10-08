@@ -52,9 +52,8 @@ func NewBroadcaster(n *maelstrom.Node, done <-chan struct{}) *Broadcaster {
 	// tell neighbors what we think they don't have
 
 	ticker := time.NewTicker(500 * time.Millisecond)
-	msgID := 0
 
-	go func() { // or we can create a goroutine for each neighbor
+	go func() {
 		for {
 			select {
 			case <-done:
@@ -69,8 +68,6 @@ func NewBroadcaster(n *maelstrom.Node, done <-chan struct{}) *Broadcaster {
 					if len(msgs) == 0 {
 						continue
 					}
-
-					msgID++
 
 					b.n.RPC(
 						neighbor,
@@ -88,13 +85,8 @@ func NewBroadcaster(n *maelstrom.Node, done <-chan struct{}) *Broadcaster {
 
 							b.mu.Lock()
 
-							// l1, l2 := len(b.neighbors[msg.Src]), len(b.store)
-
 							b.neighbors[msg.Src] = setUnion3(b.neighbors[msg.Src], resMsgSet, msgSet)
 							b.store = setUnion(b.store, resMsgSet)
-
-							// fmt.Fprintf(os.Stderr, "[DEBUG] send gossip | len(%s)=%d -> %d, len(me)=%d -> %d, len(gossip)=%d, len(gossip_ok)=%d\n",
-							// msg.Src, l1, len(b.neighbors[msg.Src]), l2, len(b.store), len(msgs), len(res.Messages))
 
 							b.mu.Unlock()
 
@@ -120,14 +112,9 @@ func (b *Broadcaster) Gossip(msg maelstrom.Message) error {
 
 	b.mu.Lock()
 
-	// l1, l2 := len(b.neighbors[msg.Src]), len(b.store)
-
 	b.neighbors[msg.Src] = setUnion(b.neighbors[msg.Src], reqMsgSet)
 	b.store = setUnion(b.store, reqMsgSet)
 	msgSet := setMinus(b.store, b.neighbors[msg.Src])
-
-	// fmt.Fprintf(os.Stderr, "[DEBUG] receive gossip | len(%s)=%d -> %d, len(me)=%d -> %d,  len(gossip)=%d, len(gossip_ok)=%d\n",
-	// msg.Src, l1, len(b.neighbors[msg.Src]), l2, len(b.store), len(req.Messages), len(msgSet))
 
 	b.mu.Unlock()
 

@@ -47,6 +47,11 @@ func main() {
 	n.Handle("commit_offsets", k.CommitOffsets)
 	n.Handle("list_committed_offsets", k.ListCommittedOffsets)
 
+	// ./maelstrom test -w txn-rw-register --bin ./bin/maelstrom-echo --node-count 2 --time-limit 20 --rate 1000 --concurrency 2n --consistency-models read-uncommitted --availability total --nemesis partition
+	t := NewTxnKV(n)
+
+	n.Handle("txn", t.Txn)
+
 	if err := n.Run(); err != nil {
 		log.Printf("ERROR: %s", err)
 		os.Exit(1)
